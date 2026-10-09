@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나의 쇼츠 지수 체크!</title>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#dff3ff;--card:#fff;--ink:#1b2a4a;--pink:#ff4f8b;--sun:#ffd23f;--lime:#b8f24a;--line:#1b2a4a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15203a;--card:#22305a;--ink:#f4f7ff;--line:#f4f7ff}}
+:root[data-theme="dark"]{--bg:#15203a;--card:#22305a;--ink:#f4f7ff;--line:#f4f7ff}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:20px;line-height:1.45;min-height:100vh}
+main{max-width:480px;margin:0 auto;padding:20px 16px 40px}
+.card{background:var(--card);border:3px solid var(--line);border-radius:28px;padding:24px 20px;box-shadow:6px 6px 0 var(--line)}
+h1{font-size:34px;line-height:1.2;margin:0 0 8px}
+h2{font-size:26px;line-height:1.3;margin:0 0 16px}
+p{margin:0 0 14px}
+.big{font-size:84px;line-height:1;text-align:center;margin:8px 0}
+button{font:inherit;color:var(--ink);cursor:pointer;width:100%;border:3px solid var(--line);border-radius:18px;padding:14px 16px;background:var(--card);margin-bottom:12px;text-align:left;box-shadow:3px 3px 0 var(--line)}
+button:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--line)}
+button:focus-visible{outline:4px solid var(--pink);outline-offset:2px}
+.go{background:var(--pink);color:#fff;text-align:center;font-size:24px}
+.alt{text-align:center;background:var(--sun);color:#1b2a4a}
+.dots{display:flex;gap:6px;margin-bottom:18px}
+.dots i{flex:1;height:10px;border-radius:6px;border:2px solid var(--line);background:transparent}
+.dots i.on{background:var(--lime)}
+.gauge{height:30px;border:3px solid var(--line);border-radius:18px;overflow:hidden;background:var(--card);margin:6px 0 4px}
+.gauge b{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lime),var(--sun),var(--pink));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.scale{display:flex;justify-content:space-between;font-size:15px;margin-bottom:16px}
+.fact{background:var(--sun);color:#1b2a4a;border:3px solid var(--line);border-radius:18px;padding:12px 14px;margin:14px 0}
+.tips{padding-left:22px;margin:0 0 14px}
+.tips li{margin-bottom:6px}
+.small{font-size:15px;opacity:.8}
+.hide{display:none}
+@media (prefers-reduced-motion:reduce){.gauge b{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <section id="start" class="card">
+    <div class="big">📱</div>
+    <h1>나의 쇼츠 지수 체크!</h1>
+    <p>쇼츠를 얼마나 보고 있을까? 8개 질문에 솔직하게 답해 봐. 정답은 없고, 재미로 해보는 거야!</p>
+    <button class="go" id="startBtn">시작하기</button>
+  </section>
+
+  <section id="quiz" class="card hide">
+    <div class="dots" id="dots"></div>
+    <h2 id="q"></h2>
+    <div id="opts"></div>
+  </section>
+
+  <section id="result" class="card hide">
+    <div class="big" id="rEmoji"></div>
+    <h1 id="rTitle" style="text-align:center"></h1>
+    <p id="rDesc" style="text-align:center"></p>
+    <div class="gauge"><b id="bar"></b></div>
+    <div class="scale"><span>느긋 😌</span><span>소용돌이 🌀</span></div>
+    <div class="fact" id="fact"></div>
+    <p>이렇게 해 보면 어때?</p>
+    <ul class="tips" id="tips"></ul>
+    <button class="alt" id="again">다시 해보기</button>
+    <p class="small">재미로 보는 체크예요. 결과가 걱정되면 부모님이나 선생님과 이야기해 봐요.</p>
+  </section>
+</main>
+
+<script>
+const Q=[
+ {q:"하루에 쇼츠를 얼마나 봐?",o:["30분보다 적게","30분~1시간","1시간보다 많이"],m:[20,45,90]},
+ {q:"“딱 하나만 더!” 하다가 계속 본 적 있어?",o:["거의 없어","가끔 있어","자주 있어"]},
+ {q:"숙제나 준비물 챙기기 전에 쇼츠부터 보게 돼?",o:["아니, 할 일 먼저!","가끔 그래","자주 그래"]},
+ {q:"자기 전에 침대에서 쇼츠를 봐?",o:["안 봐","가끔 봐","거의 매일 봐"]},
+ {q:"쇼츠 보다가 “밥 먹자!” 소리를 못 들은 적 있어?",o:["없어","한두 번 있어","자주 있어"]},
+ {q:"쇼츠를 못 보게 되면 짜증 나거나 너무 심심해?",o:["괜찮아","조금 그래","많이 그래"]},
+ {q:"친구랑 놀 때도 쇼츠가 자꾸 생각나?",o:["전혀","가끔","자주"]},
+ {q:"“어? 벌써 이렇게 시간이 지났어?” 한 적 있어?",o:["거의 없어","가끔 있어","자주 있어"]}
+];
+const L=[
+ {max:4,e:"🌱",t:"쇼츠 새싹",d:"쇼츠를 아주 잘 조절하고 있어! 쇼츠가 너를 끌고 가는 게 아니라 네가 쇼츠를 고르고 있네.",tips:["지금처럼 멈출 때 멈추기","친구에게 비법 알려 주기"]},
+ {max:8,e:"🙂",t:"쇼츠 구경꾼",d:"쇼츠를 즐기지만 아직은 괜찮아. 가끔 시간이 빨리 가니까 알람만 있으면 딱 좋아!",tips:["보기 전에 알람 15분 맞추기","알람이 울리면 바로 끄고 일어나기"]},
+ {max:12,e:"😵",t:"쇼츠에 빠져드는 중",d:"쇼츠가 점점 재미있어지고 있어. 지금부터 조금만 신경 쓰면 충분히 조절할 수 있어!",tips:["숙제 끝낸 뒤에 쇼츠 보기","자기 1시간 전에는 화면 끄기","쇼츠 대신 밖에서 10분 뛰어놀기"]},
+ {max:16,e:"🌀",t:"쇼츠 소용돌이",d:"쇼츠가 너를 꽉 붙잡고 있어! 하지만 걱정 마, 오늘부터 작은 약속 하나로 바꿀 수 있어.",tips:["부모님과 쇼츠 시간 약속 정하기","폰을 침대에서 먼 곳에 두기","쇼츠 없는 ‘놀이 시간’ 만들기","하루만 쇼츠 안 보기에 도전!"]}
+];
+let i=0,score=0,mins=0;
+const $=id=>document.getElementById(id);
+function show(id){["start","quiz","result"].forEach(s=>$(s).classList.toggle("hide",s!==id));window.scrollTo(0,0)}
+function render(){
+  $("dots").innerHTML=Q.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join("");
+  $("q").textContent=Q[i].q;
+  $("opts").innerHTML="";
+  Q[i].o.forEach((t,k)=>{
+    const b=document.createElement("button");
+    b.textContent=["🟢 ","🟡 ","🔴 "][k]+t;
+    b.onclick=()=>{score+=k;if(i===0)mins=Q[0].m[k];i++;i<Q.length?render():finish()};
+    $("opts").appendChild(b);
+  });
+}
+function finish(){
+  const lv=L.find(l=>score<=l.max);
+  $("rEmoji").textContent=lv.e;$("rTitle").textContent=lv.t;$("rDesc").textContent=lv.d;
+  const hours=Math.round(mins*365/60);
+  $("fact").innerHTML=`⏱️ 하루 ${mins}분씩 보면 1년에 약 <b>${hours}시간</b>이야! 하루 24시간으로 치면 약 ${Math.round(hours/24)}일이야.`;
+  $("tips").innerHTML=lv.tips.map(t=>`<li>${t}</li>`).join("");
+  show("result");
+  $("bar").style.width="0";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{$("bar").style.width=Math.max(6,score/16*100)+"%"}));
+}
+$("startBtn").onclick=()=>{i=0;score=0;mins=0;show("quiz");render()};
+$("again").onclick=()=>show("start");
+</script>
+</body>
+</html>
